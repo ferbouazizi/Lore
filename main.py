@@ -2,6 +2,7 @@ import ollama
 
 from src.rag.retriever import get_relevant_documents
 from src.movies.api import search_movie
+from src.rag.prompt import build_prompt
 
 
 CHAT_MODEL = "llama3"
@@ -9,21 +10,6 @@ CHAT_MODEL = "llama3"
 SYSTEM_PROMPT = """You are Lore, a local AI assistant that helps users explore fictional worlds, characters, and stories.
 Answer using the provided context when available. If the context doesn't cover the question, say so honestly rather than guessing.
 Keep answers clear, concise, and conversational."""
-
-
-def build_prompt(question, retrieved_docs):
-    """Combine retrieved knowledge and the user's question into one prompt."""
-    context = "\n\n".join(doc["content"] for doc in retrieved_docs)
-
-    prompt = f"""Use the following context to answer the question.
-If the context doesn't contain enough information, say so honestly instead of guessing.
-
-Context:
-{context}
-
-Question: {question}
-"""
-    return prompt
 
 
 def ask_ai(question, conversation_history):

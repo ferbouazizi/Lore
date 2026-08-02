@@ -2,3 +2,4 @@ ollama
 chromadb
 python-dotenv
 requests
+pytest
