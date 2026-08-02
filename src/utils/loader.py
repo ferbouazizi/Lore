@@ -1,33 +1,29 @@
 """
 Lore - Knowledge Base Loader
-Reads all .txt files from the knowledge/ folder into memory.
+Reads all supported knowledge files (.txt, .md, .pdf) into memory.
 """
 
 from pathlib import Path
+
+from src.utils.document_processor import load_document, EXTENSION_HANDLERS
 
 KNOWLEDGE_DIR = Path("knowledge")
 
 
 def load_knowledge_base():
     """
-    Read every .txt file under knowledge/ (including subfolders).
+    Read every supported file under knowledge/ (including subfolders).
     Returns a list of dicts: {"source": <file path>, "content": <file text>}
     """
     documents = []
 
-    for file_path in KNOWLEDGE_DIR.rglob("*.txt"):
-        text = file_path.read_text(encoding="utf-8")
-        documents.append({
-            "source": str(file_path),
-            "content": text.strip()
-        })
+    for extension in EXTENSION_HANDLERS:
+        for file_path in KNOWLEDGE_DIR.rglob(f"*{extension}"):
+            content = load_document(file_path)
+            if content:
+                documents.append({
+                    "source": str(file_path),
+                    "content": content
+                })
 
     return documents
-
-
-if __name__ == "__main__":
-    docs = load_knowledge_base()
-    print(f"Loaded {len(docs)} documents.\n")
-    for doc in docs:
-        preview = doc["content"][:80].replace("\n", " ")
-        print(f"- {doc['source']}: {preview}...")

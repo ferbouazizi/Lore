@@ -1,7 +1,10 @@
 """
 Lore - Embeddings & Vector Store
 Converts knowledge documents into embeddings and stores them in ChromaDB.
+Incremental: only new documents are embedded; duplicates are skipped.
 """
+
+import hashlib
 
 import ollama
 import chromadb
@@ -19,31 +22,50 @@ def get_embedding(text):
     return response["embedding"]
 
 
+def hash_content(text):
+    """Return a short, stable fingerprint of a piece of text."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def get_collection():
+    client = chromadb.PersistentClient(path=CHROMA_PATH)
+    return client.get_or_create_collection(COLLECTION_NAME)
+
+
+def document_already_indexed(collection, content_hash):
+    """Check whether a document with this exact content hash is already stored."""
+    existing = collection.get(where={"hash": content_hash})
+    return len(existing["ids"]) > 0
+
+
 def build_vector_store():
     """
-    Load all knowledge documents, embed each one, and store them in ChromaDB.
-    Safe to re-run: it rebuilds the collection from scratch each time.
+    Load all knowledge documents and add any that aren't already indexed.
+    Safe to run repeatedly - already-indexed documents are skipped.
     """
-    client = chromadb.PersistentClient(path=CHROMA_PATH)
-
-    # Start fresh each time so the store always matches knowledge/
-    if COLLECTION_NAME in [c.name for c in client.list_collections()]:
-        client.delete_collection(COLLECTION_NAME)
-
-    collection = client.create_collection(COLLECTION_NAME)
-
+    collection = get_collection()
     documents = load_knowledge_base()
 
-    for i, doc in enumerate(documents):
+    added = 0
+    skipped = 0
+
+    for doc in documents:
+        content_hash = hash_content(doc["content"])
+
+        if document_already_indexed(collection, content_hash):
+            skipped += 1
+            continue
+
         embedding = get_embedding(doc["content"])
         collection.add(
-            ids=[str(i)],
+            ids=[content_hash],
             embeddings=[embedding],
             documents=[doc["content"]],
-            metadatas=[{"source": doc["source"]}]
+            metadatas=[{"source": doc["source"], "hash": content_hash}]
         )
+        added += 1
 
-    print(f"Stored {len(documents)} documents in ChromaDB.")
+    print(f"Indexed {added} new document(s), skipped {skipped} already-indexed document(s).")
 
 
 if __name__ == "__main__":

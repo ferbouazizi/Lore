@@ -31,7 +31,7 @@ def get_relevant_documents(question, n_results=3):
 
 
 if __name__ == "__main__":
-    test_question = "Who is miles morales?"
+    test_question = "Who is ned leeds?"
     matches = get_relevant_documents(test_question)
 
     print(f"Question: {test_question}\n")
