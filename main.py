@@ -1,12 +1,15 @@
 import ollama
 
 from src.rag.retriever import get_relevant_documents
+from src.movies.api import search_movie
+
 
 CHAT_MODEL = "llama3"
 
 SYSTEM_PROMPT = """You are Lore, a local AI assistant that helps users explore fictional worlds, characters, and stories.
 Answer using the provided context when available. If the context doesn't cover the question, say so honestly rather than guessing.
 Keep answers clear, concise, and conversational."""
+
 
 def build_prompt(question, retrieved_docs):
     """Combine retrieved knowledge and the user's question into one prompt."""
@@ -46,7 +49,7 @@ def ask_ai(question, conversation_history):
 
     answer = response["message"]["content"]
 
-    # Save normal conversation memory
+    # Save conversation memory
     conversation_history.append(
         {"role": "user", "content": question}
     )
@@ -55,7 +58,7 @@ def ask_ai(question, conversation_history):
         {"role": "assistant", "content": answer}
     )
 
-    # Keep only the last 10 exchanges
+    # Keep last 10 exchanges
     conversation_history[:] = conversation_history[-20:]
 
     sources = [doc["source"] for doc in retrieved_docs]
@@ -67,8 +70,9 @@ def main():
     print("================================")
     print("Lore")
     print("================================")
-    print("Local AI Assistant with RAG")
-    print("Type 'exit' to quit.\n")
+    print("Local AI Assistant with RAG + Movie Search")
+    print("Type 'exit' to quit.")
+    print("Use 'movie: title' to search movies.\n")
 
     conversation_history = []
 
@@ -78,6 +82,21 @@ def main():
         if question.lower() == "exit":
             print("Goodbye!")
             break
+
+        # Movie API command
+        if question.lower().startswith("movie:"):
+            title = question.split(":", 1)[1].strip()
+
+            movie = search_movie(title)
+
+            if movie:
+                print(f"\n🎬 {movie['title']} ({movie['release_date']})")
+                print(f"⭐ Rating: {movie['rating']}/10")
+                print(f"\n{movie['overview']}\n")
+            else:
+                print("\nNo movie found with that title.\n")
+
+            continue
 
         answer, sources = ask_ai(
             question,
