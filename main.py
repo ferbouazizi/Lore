@@ -1,8 +1,3 @@
-"""
-Lore - Phase 4
-A local AI assistant that answers using retrieved knowledge (RAG).
-"""
-
 import ollama
 
 from src.rag.retriever import get_relevant_documents
@@ -25,27 +20,52 @@ Question: {question}
     return prompt
 
 
-def ask_ai(question):
-    """Retrieve relevant knowledge, build a grounded prompt, and get the AI's answer."""
+def ask_ai(question, conversation_history):
+    """
+    Retrieve relevant knowledge, build a grounded prompt,
+    use conversation history, and get the AI's answer.
+    """
+
     retrieved_docs = get_relevant_documents(question)
+
     prompt = build_prompt(question, retrieved_docs)
+
+    messages = conversation_history + [
+        {"role": "user", "content": prompt}
+    ]
 
     response = ollama.chat(
         model=CHAT_MODEL,
-        messages=[
-            {"role": "user", "content": prompt}
-        ]
+        messages=messages
     )
 
+    answer = response["message"]["content"]
+
+    # Store normal conversation (not the RAG prompt)
+    conversation_history.append(
+        {"role": "user", "content": question}
+    )
+
+    conversation_history.append(
+        {"role": "assistant", "content": answer}
+    )
+
+    # Keep last 10 exchanges (20 messages)
+    conversation_history[:] = conversation_history[-20:]
+
     sources = [doc["source"] for doc in retrieved_docs]
-    return response["message"]["content"], sources
+
+    return answer, sources
 
 
 def main():
     print("================================")
     print("Lore")
     print("================================")
+    print("Local AI Assistant with RAG")
     print("Type 'exit' to quit.\n")
+
+    conversation_history = []
 
     while True:
         question = input("You: ")
@@ -54,9 +74,17 @@ def main():
             print("Goodbye!")
             break
 
-        answer, sources = ask_ai(question)
+        answer, sources = ask_ai(
+            question,
+            conversation_history
+        )
+
         print(f"\nAI: {answer}")
-        print(f"(sources: {', '.join(sources)})\n")
+
+        if sources:
+            print(f"(sources: {', '.join(sources)})")
+
+        print()
 
 
 if __name__ == "__main__":
