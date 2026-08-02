@@ -12,7 +12,7 @@ No cloud dependency required for core functionality. No mandatory external API. 
 
 * Terminal-based AI chat interface
 * Local AI inference with Ollama
-* Retrieval-Augmented Generation (RAG) — answers grounded in a real knowledge base, with sources shown for every response
+* Retrieval-Augmented Generation (RAG) : answers grounded in a real knowledge base, with sources shown for every response
 * Semantic search over the knowledge base via embeddings and ChromaDB
 * Conversation memory within a session
 * Consistent assistant persona via a system prompt
@@ -116,7 +116,7 @@ pip install -r requirements.txt
 
 ---
 
-### Configure Environment (optional — only needed for TMDB)
+### Configure Environment (optional, only needed for TMDB)
 
 Copy `.env.example` to `.env` and add your TMDB API key:
 ```
@@ -159,7 +159,7 @@ You: What about her allies?
 AI: [remembers the previous question and answers accordingly]
 
 You: movie: Spider-Man: Into the Spider-Verse
-🎬 Spider-Man: Into the Spider-Verse (2018-12-06)
+Spider-Man: Into the Spider-Verse (2018-12-06)
 Rating: 8.4/10
 An animated film exploring the multiverse...
 ```
@@ -177,7 +177,7 @@ exit
 pytest
 ```
 
-Runs unit tests (knowledge loader, prompt construction) and integration tests (retrieval — requires Ollama running and the index already built).
+Runs unit tests (knowledge loader, prompt construction) and integration tests (retrieval : requires Ollama running and the index already built).
 
 ---
 
@@ -236,7 +236,7 @@ Lore has completed its full V1 roadmap:
 Lore focuses on:
 
 * Understanding AI systems from the fundamentals
-* Keeping the architecture lightweight — no heavier frameworks than necessary
+* Keeping the architecture lightweight, no heavier frameworks than necessary
 * Prioritizing privacy and local execution
 * Adding complexity only when it's earned, not by default
 
