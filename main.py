@@ -3,7 +3,7 @@ Lore - CLI
 Terminal interface for Lore, using the shared assistant core and persistent sessions.
 """
 
-from src.assistant import ask_ai
+from src.assistant import ask_ai_agentic
 from src.db.database import init_db
 from src.db.conversations import create_session, save_message, list_sessions, get_session_messages
 
@@ -73,13 +73,14 @@ def main():
         if session_id is None:
             session_id = create_session()
 
-        answer, sources = ask_ai(question, conversation_history)
+        answer, sources, tool = ask_ai_agentic(question, conversation_history)
+
         save_message(session_id, "user", question)
         save_message(session_id, "assistant", answer)
 
-        print(f"\nAI: {answer}")
+        print(f"[Tool: {tool}]")
+        print(f"\nLore: {answer}")
         print(f"(sources: {', '.join(sources)})\n")
-
-
+        
 if __name__ == "__main__":
     main()
