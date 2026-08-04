@@ -379,27 +379,44 @@ def render_user_message(text):
 
 
 def render_ai_message(text, sources, timestamp, tool_name=None):
-    source_html = ""
-    if sources:
-        pills = "".join(f'<div class="source-pill">{s}</div>' for s in sources)
-        source_html = f'<div class="source-row">{pills}</div>'
 
-    tool_label = f' · {tool_name}' if tool_name else ""
+    import html
+
+    text = html.escape(text)
+
+    source_html = ""
+
+    if sources:
+        pills = "".join(
+            f"<div class='source-pill'>{html.escape(str(s))}</div>"
+            for s in sources
+        )
+        source_html = f"<div class='source-row'>{pills}</div>"
+
+    tool_label = f" · {tool_name}" if tool_name else ""
+
+    html_block = f"""
+<div class="ai-card">
+<div class="ai-header">
+<span>
+<span class="tag">LORE RESPONSE</span> · {timestamp}{tool_label}
+</span>
+<span>{CHAT_MODEL.upper()}</span>
+</div>
+
+<div class="ai-body">
+{text.replace(chr(10), "<br>")}
+</div>
+
+{source_html}
+
+</div>
+"""
 
     st.markdown(
-        f"""
-        <div class="ai-card">
-            <div class="ai-header">
-                <span><span class="tag">LORE RESPONSE</span> · {timestamp}{tool_label}</span>
-                <span>{CHAT_MODEL.upper()}</span>
-            </div>
-            <div class="ai-body">{text}</div>
-            {source_html}
-        </div>
-        """,
-        unsafe_allow_html=True,
+        html_block,
+        unsafe_allow_html=True
     )
-
 
 def start_new_conversation():
     """Reset to a fresh, unsaved conversation - a real DB session is only
@@ -528,7 +545,7 @@ st.markdown(
     <div class="hero">
         <div class="hero-title">LORE</div>
         <div class="hero-subtitle">Your personal AI knowledge companion</div>
-        <div class="hero-caption">Ask questions. Explore knowledge. Search your local archive.</div>
+
     </div>
     """,
     unsafe_allow_html=True,
