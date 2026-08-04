@@ -5,10 +5,10 @@ Reads all supported knowledge files (.txt, .md, .pdf) into memory.
 
 from pathlib import Path
 
+from src.config import KNOWLEDGE_DIR
 from src.utils.document_processor import load_document, EXTENSION_HANDLERS
 
-KNOWLEDGE_DIR = Path("knowledge")
-
+KNOWLEDGE_DIR = Path(KNOWLEDGE_DIR)
 
 def load_knowledge_base():
     """

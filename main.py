@@ -3,7 +3,7 @@ Lore - CLI
 Terminal interface for Lore, using the shared assistant core and persistent sessions.
 """
 
-from src.assistant import ask_ai_agentic
+from src.assistant import ask_ai
 from src.db.database import init_db
 from src.db.conversations import create_session, save_message, list_sessions, get_session_messages
 
@@ -25,9 +25,10 @@ def main():
     print("================================")
     print("Lore")
     print("================================")
-    print("Commands: 'sessions' to list past conversations, 'load <id>' to resume one, 'exit' to quit.\n")
+    print("Commands: 'sessions' to list past conversations, 'load <id>' to resume one, 'exit' to quit.")
 
-    session_id = None  # created lazily, on first real message
+
+    session_id = None  
     conversation_history = []
 
     while True:
@@ -58,22 +59,10 @@ def main():
             print(f"Resumed conversation: {matches[0]['title']}\n")
             continue
 
-        if question.lower().startswith("movie:"):
-            from src.movies.api import search_movie
-            title = question.split(":", 1)[1].strip()
-            movie = search_movie(title)
-            if movie:
-                print(f"\n{movie['title']} ({movie['release_date']})")
-                print(f"Rating: {movie['rating']}/10")
-                print(f"{movie['overview']}\n")
-            else:
-                print("\nNo movie found with that title.\n")
-            continue
-
         if session_id is None:
             session_id = create_session()
 
-        answer, sources, tool = ask_ai_agentic(question, conversation_history)
+        answer, sources, tool = ask_ai(question, conversation_history)
 
         save_message(session_id, "user", question)
         save_message(session_id, "assistant", answer)
@@ -81,6 +70,6 @@ def main():
         print(f"[Tool: {tool}]")
         print(f"\nLore: {answer}")
         print(f"(sources: {', '.join(sources)})\n")
-        
+
 if __name__ == "__main__":
     main()

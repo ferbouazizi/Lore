@@ -6,8 +6,9 @@ Creates and connects to the local SQLite database.
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path("lore.db")
+from src.config import DB_PATH
 
+DB_PATH = Path(DB_PATH)
 
 def get_connection():
     """Open a connection to the SQLite database."""

@@ -7,8 +7,7 @@ import json
 import ollama
 
 from src.agent.tools import TOOLS
-
-ROUTER_MODEL = "llama3"
+from src.config import ROUTER_MODEL
 
 
 def build_router_prompt(question):

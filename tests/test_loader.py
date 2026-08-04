@@ -1,6 +1,7 @@
 """Tests for the knowledge base loader."""
 
 from src.utils.loader import load_knowledge_base
+from src.utils.document_processor import EXTENSION_HANDLERS
 
 
 def test_load_knowledge_base_returns_documents():
@@ -18,8 +19,9 @@ def test_documents_have_required_fields():
         assert len(doc["content"]) > 0
 
 
-def test_documents_are_text_files():
-    """Every loaded document's source should be a .txt file."""
+def test_documents_are_supported_file_types():
+    """Every loaded document's source should be one of the supported extensions."""
     documents = load_knowledge_base()
+    supported_extensions = tuple(EXTENSION_HANDLERS.keys())
     for doc in documents:
-        assert doc["source"].endswith(".txt")
+        assert doc["source"].endswith(supported_extensions)
